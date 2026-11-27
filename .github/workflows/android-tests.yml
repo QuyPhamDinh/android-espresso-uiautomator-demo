@@ -18,6 +18,15 @@ on:
           - accessibility
           - webview
           - lifecycle
+      api-levels:
+        description: API level matrix to run
+        type: choice
+        default: '[36]'
+        options:
+          - '[36]'
+          - '[34]'
+          - '[30]'
+          - '[30,34,36]'
 
 permissions:
   contents: read
@@ -34,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: ${{ fromJSON(github.event_name == 'push' && github.ref == 'refs/heads/main' && '[30,34,36]' || '[36]') }}
+        api-level: ${{ fromJSON((github.event_name == 'push' && github.ref == 'refs/heads/main' && '[30,34,36]') || (github.event_name == 'workflow_dispatch' && inputs.api-levels) || '[36]') }}
 
     steps:
       - uses: actions/checkout@v5
@@ -70,7 +79,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-v1-${{ runner.os }}-24.04-api-${{ matrix.api-level }}-google_apis-x86_64-pixel_2
+          key: avd-v2-${{ runner.os }}-24.04-api-${{ matrix.api-level }}-google_apis-x86_64-pixel_2-4096m
 
       - name: Generate a clean emulator snapshot
         if: matrix.api-level != 30 && steps.avd-cache.outputs.cache-hit != 'true'
@@ -80,10 +89,15 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
+          ram-size: '4096M'
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
-          script: 'echo Clean AVD snapshot ready'
+          script: |
+            adb shell pm disable-user --user 0 com.android.vending >/dev/null 2>&1 || true
+            adb shell cmd package bg-dexopt-job || true
+            sleep 45
+            echo Clean AVD snapshot ready
 
       - name: Cache the clean emulator snapshot
         if: matrix.api-level != 30 && github.ref == 'refs/heads/main' && steps.avd-cache.outputs.cache-hit != 'true'
@@ -103,12 +117,14 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
+          ram-size: '4096M'
           force-avd-creation: false
           emulator-options: >-
             ${{ matrix.api-level == 30 && '-no-snapshot' || '-no-snapshot-save' }}
             -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
+            adb shell pm disable-user --user 0 com.android.vending >/dev/null 2>&1 || true
             adb shell wm size
             adb shell wm density
             make "$TEST_SUITE"

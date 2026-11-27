@@ -1,6 +1,7 @@
 package com.wdiodemoapp.tests.webview
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import com.wdiodemoapp.IdlingHooks
 import com.wdiodemoapp.framework.core.IdlingResourceRule
 import com.wdiodemoapp.framework.rules.AppHybridTestRule
@@ -23,6 +24,8 @@ class WebViewTests {
         .outerRule(IdlingResourceRule(IdlingHooks.webViewResource))
         .around(AppHybridTestRule())
 
+    // API 30 ships Chromium WebView 83, which fails with SyntaxError on live webdriver.io JS bundles.
+    @SdkSuppress(minSdkVersion = 31)
     @Test
     fun webViewSearchOpensUrlDocumentation() {
         WebViewRobot.open()
@@ -32,6 +35,7 @@ class WebViewTests {
             .assertHeadingContains("header h1", "url")
     }
 
+    @SdkSuppress(minSdkVersion = 31)
     @Test
     fun switchesCleanlyBetweenWebViewNativeAndWebView() {
         WebViewRobot.open()
