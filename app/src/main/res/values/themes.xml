@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.WdioDemoApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/wdio_orange</item>
+        <item name="colorPrimaryVariant">@color/wdio_orange_dark</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/wdio_orange</item>
+        <item name="android:statusBarColor">@color/wdio_orange_dark</item>
+        <item name="android:windowBackground">@color/surface_bg</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Wdio.AlertDialog</item>
+    </style>
+
+    <style name="ThemeOverlay.Wdio.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/wdio_orange</item>
+    </style>
+</resources>

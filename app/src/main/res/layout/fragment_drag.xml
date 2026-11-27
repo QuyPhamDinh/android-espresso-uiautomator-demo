@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drag_drop_screen"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:contentDescription="Drag-drop-screen">
+
+    <LinearLayout
+        android:id="@+id/puzzle_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/drag_title"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/renew_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentEnd="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="renew"
+                android:src="@drawable/ic_refresh" />
+        </RelativeLayout>
+
+        <!-- 3x3 Drop Grid -->
+        <GridLayout
+            android:id="@+id/drop_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:columnCount="3"
+            android:rowCount="3">
+
+            <TextView
+                android:id="@+id/drop_l1"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-l1"
+                android:gravity="center"
+                android:text="L1"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_c1"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-c1"
+                android:gravity="center"
+                android:text="C1"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_r1"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-r1"
+                android:gravity="center"
+                android:text="R1"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_l2"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-l2"
+                android:gravity="center"
+                android:text="L2"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_c2"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-c2"
+                android:gravity="center"
+                android:text="C2"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_r2"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-r2"
+                android:gravity="center"
+                android:text="R2"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_l3"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-l3"
+                android:gravity="center"
+                android:text="L3"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_c3"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-c3"
+                android:gravity="center"
+                android:text="C3"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/drop_r3"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_margin="4dp"
+                android:background="@drawable/bg_drop_zone"
+                android:contentDescription="drop-r3"
+                android:gravity="center"
+                android:text="R3"
+                android:textColor="@color/text_secondary" />
+        </GridLayout>
+
+        <!-- 3x3 Draggable Tray -->
+        <GridLayout
+            android:id="@+id/drag_tray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:columnCount="3"
+            android:rowCount="3">
+
+            <TextView
+                android:id="@+id/drag_c2"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-c2"
+                android:gravity="center"
+                android:text="C2"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_r1"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-r1"
+                android:gravity="center"
+                android:text="R1"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_l3"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-l3"
+                android:gravity="center"
+                android:text="L3"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_l1"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-l1"
+                android:gravity="center"
+                android:text="L1"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_r3"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-r3"
+                android:gravity="center"
+                android:text="R3"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_c1"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-c1"
+                android:gravity="center"
+                android:text="C1"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_l2"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-l2"
+                android:gravity="center"
+                android:text="L2"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_c3"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-c3"
+                android:gravity="center"
+                android:text="C3"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/drag_r2"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_drag_piece"
+                android:contentDescription="drag-r2"
+                android:gravity="center"
+                android:text="R2"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+        </GridLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/congrats_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/drag_congrats_title"
+            android:textColor="@color/text_primary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/drag_congrats_subtitle"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/button_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/wdio_orange"
+            android:contentDescription="button-Retry"
+            android:paddingHorizontal="32dp"
+            android:text="@string/drag_retry"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</FrameLayout>

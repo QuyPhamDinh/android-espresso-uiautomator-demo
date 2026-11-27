@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="Carousel" type="id" />
+    <item name="__CAROUSEL_ITEM_0__" type="id" />
+    <item name="__CAROUSEL_ITEM_1__" type="id" />
+    <item name="__CAROUSEL_ITEM_2__" type="id" />
+    <item name="__CAROUSEL_ITEM_3__" type="id" />
+    <item name="__CAROUSEL_ITEM_4__" type="id" />
+    <item name="__CAROUSEL_ITEM_5__" type="id" />
+</resources>

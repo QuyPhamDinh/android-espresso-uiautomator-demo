@@ -1,0 +1,17 @@
+# Gradle & Kotlin
+.gradle/
+.kotlin/
+**/build/
+
+# Local SDK / IDE configuration
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+
+# Android artifacts
+*.apk
+*.ap_
+*.aab
+*.dex

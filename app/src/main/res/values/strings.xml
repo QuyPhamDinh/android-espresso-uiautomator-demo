@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">wdiodemoapp</string>
+
+    <!-- Bottom Tab Labels & Content Descriptions -->
+    <string name="tab_home">Home</string>
+    <string name="tab_webview">Webview</string>
+    <string name="tab_login">Login</string>
+    <string name="tab_forms">Forms</string>
+    <string name="tab_swipe">Swipe</string>
+    <string name="tab_drag">Drag</string>
+
+    <!-- Home -->
+    <string name="brand_badge_name">Quy Pham</string>
+    <string name="home_title">WEBDRIVERIO</string>
+    <string name="webview_banner">WebView Browser</string>
+    <string name="home_subtitle">Demo app for Espresso and Appium automation</string>
+    <string name="home_description">Native Android companion app matching every control, accessibility identifier, alert, picker, carousel, WebView, biometric prompt, and drag-and-drop interaction from the WDIO demo test suite.</string>
+
+    <!-- Login / Sign Up -->
+    <string name="login_header">Login / Sign up Form</string>
+    <string name="login_tab">Login</string>
+    <string name="signup_tab">Sign up</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="repeat_password_hint">Confirm password</string>
+    <string name="login_button">LOGIN</string>
+    <string name="signup_button">SIGN UP</string>
+    <string name="biometric_hint">When the device has Touch/FaceID (or Fingerprint) enabled, a biometrics button will be shown.</string>
+    <string name="error_invalid_email">Please enter a valid email address</string>
+    <string name="error_invalid_password">Please enter at least 8 characters</string>
+    <string name="error_password_mismatch">Please enter the same password</string>
+    <string name="alert_login_title">Success</string>
+    <string name="alert_login_message">You are logged in!</string>
+    <string name="alert_signup_title">Signed Up!</string>
+    <string name="alert_signup_message">You successfully signed up!</string>
+    <string name="alert_ok">OK</string>
+    <string name="biometric_prompt_title">Login with Fingerprint</string>
+    <string name="biometric_prompt_subtitle">Use your biometric credential to authenticate</string>
+    <string name="biometric_prompt_cancel">Cancel</string>
+
+    <!-- Forms -->
+    <string name="forms_title">Form components</string>
+    <string name="forms_input_label">Input field:</string>
+    <string name="forms_input_hint">Type something</string>
+    <string name="forms_input_result_label">You have typed:</string>
+    <string name="forms_switch_label">Switch:</string>
+    <string name="forms_switch_on">Click to turn the switch OFF</string>
+    <string name="forms_switch_off">Click to turn the switch ON</string>
+    <string name="forms_dropdown_label">Dropdown:</string>
+    <string name="forms_dropdown_hint">Select an item…</string>
+    <string name="forms_buttons_label">Buttons</string>
+    <string name="forms_button_active">Active</string>
+    <string name="forms_button_inactive">Inactive</string>
+    <string name="forms_alert_title">This button is</string>
+    <string name="forms_alert_message">This button is active</string>
+    <string name="forms_alert_ask_later">Ask me later</string>
+    <string name="forms_alert_cancel">Cancel</string>
+
+    <!-- Swipe -->
+    <string name="swipe_title">Swipe horizontal</string>
+    <string name="swipe_subtitle">Or swipe vertical to find what I am hiding.</string>
+    <string name="swipe_found_me">You found me!!!</string>
+
+    <!-- Drag & Drop -->
+    <string name="drag_title">Drag and Drop</string>
+    <string name="drag_congrats_title">Congratulations</string>
+    <string name="drag_congrats_subtitle">You made it, click retry if you want to try it again.</string>
+    <string name="drag_retry">Retry</string>
+</resources>
