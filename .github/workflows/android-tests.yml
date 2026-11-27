@@ -1,0 +1,122 @@
+name: Android Espresso & UIAutomator tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Test suite to run
+        type: choice
+        default: test
+        options:
+          - test
+          - app
+          - smoke
+          - regression
+          - accessibility
+          - webview
+          - lifecycle
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-tests:
+    name: Espresso & UIAutomator (API ${{ matrix.api-level }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: ${{ fromJSON(github.event_name == 'push' && github.ref == 'refs/heads/main' && '[30,34,36]' || '[36]') }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle caching
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5
+
+      - name: Install Android SDK compile components
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'platforms;android-37.0' 'build-tools;36.0.0'
+
+      - name: Assemble app and instrumentation APKs
+        run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :lifecycle-androidTest:assembleDebugAndroidTest
+
+      - name: Enable KVM for the emulator
+        run: |
+          printf '%s\n' 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Restore the emulator snapshot
+        if: matrix.api-level != 30
+        id: avd-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-v1-${{ runner.os }}-24.04-api-${{ matrix.api-level }}-google_apis-x86_64-pixel_2
+
+      - name: Generate a clean emulator snapshot
+        if: matrix.api-level != 30 && steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: 'echo Clean AVD snapshot ready'
+
+      - name: Cache the clean emulator snapshot
+        if: matrix.api-level != 30 && github.ref == 'refs/heads/main' && steps.avd-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: ${{ steps.avd-cache.outputs.cache-primary-key }}
+
+      - name: Run instrumentation test suite
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        env:
+          TEST_SUITE: ${{ inputs.suite || 'test' }}
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          force-avd-creation: false
+          emulator-options: >-
+            ${{ matrix.api-level == 30 && '-no-snapshot' || '-no-snapshot-save' }}
+            -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb shell wm size
+            adb shell wm density
+            make "$TEST_SUITE"
+
+      - name: Upload test reports and failure artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-espresso-results-api-${{ matrix.api-level }}
+          path: build/device-test-results/
+          if-no-files-found: warn
