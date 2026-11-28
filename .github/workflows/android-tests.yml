@@ -71,7 +71,7 @@ jobs:
         run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :lifecycle-androidTest:assembleDebug :lifecycle-androidTest:assembleDebugAndroidTest --build-cache
 
       - name: Upload prebuilt APKs and Gradle build cache
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prebuilt-apks
           retention-days: 1
@@ -109,7 +109,7 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'platforms;android-37.0' 'build-tools;36.0.0'
 
       - name: Download prebuilt APKs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: prebuilt-apks
 
@@ -192,7 +192,7 @@ jobs:
 
       - name: Upload test reports and failure artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-espresso-results-api-${{ matrix.api-level }}-shard-${{ matrix.shard }}
           path: build/device-test-results/
