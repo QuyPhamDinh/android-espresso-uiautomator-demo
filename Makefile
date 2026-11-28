@@ -2,34 +2,61 @@
 
 GRADLE ?= ./gradlew
 GRADLE_FLAGS ?= -PuseTestOrchestrator=true
-RUN_TESTS := bash scripts/run-device-tests.sh
+ANDROID_SERIAL ?=
+SERIAL_FLAG := $(if $(ANDROID_SERIAL),--serial $(ANDROID_SERIAL),)
+RUN_TESTS := bash scripts/run-device-tests.sh $(SERIAL_FLAG)
 ANN_PKG := com.wdiodemoapp.testshared
+
+NUM_SHARDS ?= 1
+SHARD_INDEX ?= 0
+PREBUILT_APKS ?= false
+
+ifeq ($(shell test "$(NUM_SHARDS)" -gt 1 && echo yes),yes)
+SHARD_FLAGS := -Pandroid.testInstrumentationRunnerArguments.numShards=$(NUM_SHARDS) -Pandroid.testInstrumentationRunnerArguments.shardIndex=$(SHARD_INDEX)
+RUN_LIFECYCLE := $(shell test "$(SHARD_INDEX)" -eq 0 && echo yes || echo no)
+else
+SHARD_FLAGS :=
+RUN_LIFECYCLE := yes
+endif
+
+ifeq ($(PREBUILT_APKS),true)
+CACHE_FLAGS := --build-cache
+else
+CACHE_FLAGS :=
+endif
+
+APP_RUN := $(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) $(SHARD_FLAGS) $(CACHE_FLAGS)
+LIFECYCLE_RUN := $(RUN_TESTS) $(GRADLE) :lifecycle-androidTest:connectedDebugAndroidTest $(GRADLE_FLAGS) $(CACHE_FLAGS)
 
 test:
 	@app_status=0; lifecycle_status=0; \
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) || app_status=$$?; \
-	$(RUN_TESTS) $(GRADLE) :lifecycle-androidTest:connectedDebugAndroidTest $(GRADLE_FLAGS) || lifecycle_status=$$?; \
+	$(APP_RUN) || app_status=$$?; \
+	if [ "$(RUN_LIFECYCLE)" = "yes" ]; then \
+		$(LIFECYCLE_RUN) || lifecycle_status=$$?; \
+	fi; \
 	if [ $$app_status -ne 0 ]; then exit $$app_status; fi; \
 	exit $$lifecycle_status
 
 app:
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS)
+	$(APP_RUN)
 
 smoke:
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).SmokeTest
+	$(APP_RUN) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).SmokeTest
 
 regression:
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).RegressionTest
+	$(APP_RUN) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).RegressionTest
 
 accessibility:
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).AccessibilityTest
+	$(APP_RUN) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).AccessibilityTest
 
 webview:
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).WebViewTest
+	$(APP_RUN) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).WebViewTest
 
 lifecycle:
 	@app_status=0; lifecycle_status=0; \
-	$(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).LifecycleTest || app_status=$$?; \
-	$(RUN_TESTS) $(GRADLE) :lifecycle-androidTest:connectedDebugAndroidTest $(GRADLE_FLAGS) || lifecycle_status=$$?; \
+	$(APP_RUN) -Pandroid.testInstrumentationRunnerArguments.annotation=$(ANN_PKG).LifecycleTest || app_status=$$?; \
+	if [ "$(RUN_LIFECYCLE)" = "yes" ]; then \
+		$(LIFECYCLE_RUN) || lifecycle_status=$$?; \
+	fi; \
 	if [ $$app_status -ne 0 ]; then exit $$app_status; fi; \
 	exit $$lifecycle_status

@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -eu
 
+if [[ "${1:-}" == "--serial" ]]; then
+    if [[ $# -lt 2 || -z "${2:-}" ]]; then
+        printf 'Usage: %s [--serial <adb-serial>] <command...>\n' "$0" >&2
+        exit 2
+    fi
+    export ANDROID_SERIAL=$2
+    shift 2
+elif [[ -n "${ANDROID_SERIAL:-}" ]]; then
+    export ANDROID_SERIAL
+fi
+
 mkdir -p build/device-test-results
 run_dir=$(mktemp -d "build/device-test-results/$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")
 run_id=${run_dir##*/}

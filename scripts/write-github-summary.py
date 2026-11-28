@@ -89,9 +89,14 @@ def parse_xml_reports(results_root: Path) -> list[dict]:
     return suites
 
 
-def render_markdown(suites: list[dict], api_level: str) -> str:
+def render_markdown(suites: list[dict], api_level: str, shard_index: str = "", num_shards: str = "") -> str:
     """Format parsed test suites into a Markdown report for $GITHUB_STEP_SUMMARY."""
-    heading = f"### Instrumentation Test Results (API {api_level})" if api_level else "### Instrumentation Test Results"
+    details: list[str] = []
+    if api_level:
+        details.append(f"API {api_level}")
+    if num_shards.isdigit() and int(num_shards) > 1 and shard_index:
+        details.append(f"Shard {shard_index} of {num_shards}")
+    heading = f"### Instrumentation Test Results ({', '.join(details)})" if details else "### Instrumentation Test Results"
     lines = [heading, ""]
 
     if not suites:
@@ -141,8 +146,10 @@ def render_markdown(suites: list[dict], api_level: str) -> str:
 def main() -> int:
     results_dir = Path(sys.argv[1] if len(sys.argv) > 1 else "build/device-test-results")
     api_level = os.environ.get("API_LEVEL", "")
+    shard_index = os.environ.get("SHARD_INDEX", "")
+    num_shards = os.environ.get("NUM_SHARDS", "")
     suites = parse_xml_reports(results_dir) if results_dir.exists() else []
-    markdown = render_markdown(suites, api_level)
+    markdown = render_markdown(suites, api_level, shard_index, num_shards)
 
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
