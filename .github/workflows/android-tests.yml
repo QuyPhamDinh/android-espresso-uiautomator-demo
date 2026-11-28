@@ -129,6 +129,12 @@ jobs:
             adb shell wm density
             make "$TEST_SUITE"
 
+      - name: Publish test summary
+        if: always()
+        env:
+          API_LEVEL: ${{ matrix.api-level }}
+        run: python3 scripts/write-github-summary.py build/device-test-results
+
       - name: Upload test reports and failure artifacts
         if: always()
         uses: actions/upload-artifact@v4
