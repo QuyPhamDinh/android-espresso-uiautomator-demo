@@ -64,6 +64,7 @@ class FormsInteractionTests {
     fun inactiveButtonRemainsDisabledAndShowsNoAlert() {
         FormsRobot.open()
             .assertInactiveButtonDisabled()
+            .tapInactiveButton()
         AlertRobot.assertNoDialogWithText("This button is")
     }
 }

@@ -36,21 +36,35 @@ object EspressoActions {
 
     fun scrollIfNeededAndTap(matcher: Matcher<View>) {
         val view = onView(matcher)
-        try {
-            view.check(matches(isDisplayingAtLeast(90)))
-            view.perform(click())
-        } catch (_: Throwable) {
-            view.perform(scrollToIfInScrollable(), click())
-        }
+        ensureVisibleInScrollable(view)
+        view.perform(click())
+    }
+
+    fun ensureVisible(matcher: Matcher<View>): ViewInteraction {
+        val view = onView(matcher)
+        ensureVisibleInScrollable(view)
+        return view
     }
 
     fun replaceTextAndCloseKeyboard(contentDescription: String, text: String) {
         val target = onDesc(contentDescription)
-        runCatching { target.perform(scrollTo()) }
+        ensureVisibleInScrollable(target)
         if (text.isEmpty()) {
             target.perform(clearText(), closeSoftKeyboard())
         } else {
             target.perform(replaceText(text), closeSoftKeyboard())
+        }
+    }
+
+    private fun ensureVisibleInScrollable(view: ViewInteraction) {
+        val needsScroll = try {
+            view.check(matches(isDisplayingAtLeast(90)))
+            false
+        } catch (_: AssertionError) {
+            true
+        }
+        if (needsScroll) {
+            view.perform(scrollToIfInScrollable())
         }
     }
 

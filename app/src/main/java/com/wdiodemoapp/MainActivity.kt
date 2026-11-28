@@ -55,9 +55,12 @@ class MainActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
+        val customWebViewUrl = intent?.getStringExtra(EXTRA_WEBVIEW_URL)
         tabs = listOf(
             TabItem(R.id.nav_home, TAG_HOME, binding.navHome, binding.navHomeIcon, binding.navHomeLabel) { HomeFragment() },
-            TabItem(R.id.nav_webview, TAG_WEBVIEW, binding.navWebview, binding.navWebviewIcon, binding.navWebviewLabel) { WebViewFragment() },
+            TabItem(R.id.nav_webview, TAG_WEBVIEW, binding.navWebview, binding.navWebviewIcon, binding.navWebviewLabel) {
+                WebViewFragment.newInstance(customWebViewUrl)
+            },
             TabItem(R.id.nav_login, TAG_LOGIN, binding.navLogin, binding.navLoginIcon, binding.navLoginLabel) { LoginFragment() },
             TabItem(R.id.nav_forms, TAG_FORMS, binding.navForms, binding.navFormsIcon, binding.navFormsLabel) { FormsFragment() },
             TabItem(R.id.nav_swipe, TAG_SWIPE, binding.navSwipe, binding.navSwipeIcon, binding.navSwipeLabel) { SwipeFragment() },
@@ -151,6 +154,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_WEBVIEW_URL = "com.wdiodemoapp.EXTRA_WEBVIEW_URL"
         private const val KEY_ACTIVE_TAB = "active_tab"
         private const val TAG_HOME = "tab_home"
         private const val TAG_WEBVIEW = "tab_webview"
