@@ -6,6 +6,7 @@ import com.wdiodemoapp.framework.screens.AlertRobot
 import com.wdiodemoapp.framework.screens.LoginRobot
 import com.wdiodemoapp.testshared.SmokeTest
 import com.wdiodemoapp.testshared.TestConfig
+import com.wdiodemoapp.testshared.UiText
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,9 +23,9 @@ class LoginAndSignupTests {
         LoginRobot.open()
             .login(TestConfig.TEST_EMAIL, TestConfig.TEST_PASSWORD)
 
-        AlertRobot.assertTitleOrMessageContains("Success")
-            .tapButton("OK")
-            .assertNoDialogWithText("Success")
+        AlertRobot.assertTitleOrMessageContains(UiText.Login.LOGIN_SUCCESS_TITLE)
+            .tapButton(UiText.Common.OK)
+            .assertNoDialogWithText(UiText.Login.LOGIN_SUCCESS_TITLE)
     }
 
     @Test
@@ -32,8 +33,8 @@ class LoginAndSignupTests {
         LoginRobot.open()
             .signUp(TestConfig.TEST_EMAIL, TestConfig.TEST_PASSWORD)
 
-        AlertRobot.assertTitleOrMessageContains("Signed Up")
-            .tapButton("OK")
-            .assertNoDialogWithText("Signed Up")
+        AlertRobot.assertTitleOrMessageContains(UiText.Login.SIGNUP_SUCCESS_TITLE)
+            .tapButton(UiText.Common.OK)
+            .assertNoDialogWithText(UiText.Login.SIGNUP_SUCCESS_TITLE)
     }
 }

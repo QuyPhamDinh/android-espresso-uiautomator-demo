@@ -3,7 +3,6 @@ package com.wdiodemoapp.testshared
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.SystemClock
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
@@ -65,16 +64,16 @@ class SystemActions(
         val initialPids = processIds()
         check(initialPids.isNotEmpty()) { "$packageName exited before am kill" }
 
-        val deadline = SystemClock.elapsedRealtime() + TestConfig.processKillTimeoutMs
-        do {
+        Waiters.waitUntil(
+            timeoutMs = TestConfig.processKillTimeoutMs,
+            pollIntervalMs = 500L,
+            failureMessage = {
+                "am kill did not stop $packageName (initial=$initialPids, remaining=${processIds()})"
+            },
+        ) {
             device.executeShellCommand("am kill $packageName")
-            val remaining = processIds()
-            if (remaining.isEmpty()) return
-            check(SystemClock.elapsedRealtime() < deadline) {
-                "am kill did not stop $packageName (initial=$initialPids, remaining=$remaining)"
-            }
-            SystemClock.sleep(500)
-        } while (true)
+            processIds().isEmpty()
+        }
     }
 
     fun awaitWindowVisible() {

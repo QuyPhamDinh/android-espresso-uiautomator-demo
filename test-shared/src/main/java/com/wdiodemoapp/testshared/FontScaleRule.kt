@@ -1,6 +1,5 @@
 package com.wdiodemoapp.testshared
 
-import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.rules.TestRule
@@ -55,22 +54,22 @@ class FontScaleRule(private val scale: Float) : TestRule {
         }
         device.executeShellCommand(command)
 
-        val deadline = SystemClock.elapsedRealtime() + FONT_SCALE_TIMEOUT_MS
-        while (SystemClock.elapsedRealtime() < deadline) {
+        Waiters.waitUntil(
+            timeoutMs = FONT_SCALE_TIMEOUT_MS,
+            pollIntervalMs = 100L,
+            failureMessage = {
+                "Expected font scale $expected ($setting), found " +
+                    "${instrumentation.targetContext.resources.configuration.fontScale} (${readSetting()})"
+            },
+        ) {
             val currentScale = instrumentation.targetContext.resources.configuration.fontScale
-            if (currentScale == expected) {
+            if (currentScale != expected) {
+                false
+            } else {
                 val currentSetting = readSetting()
-                if (currentSetting == setting ||
+                currentSetting == setting ||
                     (setting == "null" && currentSetting.toFloatOrNull() == expected)
-                ) {
-                    return
-                }
             }
-            SystemClock.sleep(100)
         }
-        error(
-            "Expected font scale $expected ($setting), found " +
-                "${instrumentation.targetContext.resources.configuration.fontScale} (${readSetting()})",
-        )
     }
 }
