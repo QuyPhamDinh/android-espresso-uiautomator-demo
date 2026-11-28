@@ -1,7 +1,6 @@
 package com.wdiodemoapp.tests.lifecycle
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.wdiodemoapp.MainActivity
 import com.wdiodemoapp.framework.rules.AppHybridTestRule
 import com.wdiodemoapp.framework.screens.FormsRobot
 import com.wdiodemoapp.testshared.LifecycleTest
@@ -66,7 +65,7 @@ class WarmResumeTests {
             .enterText("Draft before recreate")
             .setSwitch(true)
 
-        app.recreateCurrentActivity<MainActivity>()
+        app.recreateCurrentActivity()
 
         FormsRobot.open()
             .assertStateCleared()
