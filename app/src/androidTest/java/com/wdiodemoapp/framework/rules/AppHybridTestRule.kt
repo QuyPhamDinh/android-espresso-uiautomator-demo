@@ -15,22 +15,19 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * Combined JUnit rule managing ActivityScenario lifecycle, UIAutomator SystemActions,
- * and automatic screenshot/hierarchy/logcat capture on test failure.
+ * Generic JUnit rule managing [ActivityScenario] lifecycle for any [Activity],
+ * UIAutomator [SystemActions], and automatic screenshot/hierarchy/logcat capture on test failure.
  */
-class AppHybridTestRule(
-    private val intentProvider: (() -> Intent)?,
+class AppHybridTestRule<A : Activity>(
+    private val activityClass: Class<A>,
+    private val intentProvider: (() -> Intent)? = null,
 ) : TestRule {
-
-    constructor(launchIntent: Intent? = null) : this(
-        intentProvider = launchIntent?.let { intent -> { intent } },
-    )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device: UiDevice get() = UiDevice.getInstance(instrumentation)
     val system: SystemActions get() = SystemActions(device, instrumentation.targetContext)
 
-    var scenario: ActivityScenario<MainActivity>? = null
+    var scenario: ActivityScenario<A>? = null
         private set
 
     private val scenarioResource = object : ExternalResource() {
@@ -39,7 +36,7 @@ class AppHybridTestRule(
             scenario = if (intent != null) {
                 ActivityScenario.launch(intent)
             } else {
-                ActivityScenario.launch(MainActivity::class.java)
+                ActivityScenario.launch(activityClass)
             }
         }
 
@@ -56,7 +53,22 @@ class AppHybridTestRule(
     override fun apply(base: Statement, description: Description): Statement =
         chain.apply(base, description)
 
-    fun <T : Activity> recreateCurrentActivity() {
+    fun recreateCurrentActivity() {
         scenario?.recreate()
+    }
+
+    companion object {
+        operator fun invoke(): AppHybridTestRule<MainActivity> =
+            AppHybridTestRule(MainActivity::class.java)
+
+        operator fun invoke(launchIntent: Intent): AppHybridTestRule<MainActivity> =
+            AppHybridTestRule(MainActivity::class.java) { launchIntent }
+
+        operator fun invoke(intentProvider: () -> Intent): AppHybridTestRule<MainActivity> =
+            AppHybridTestRule(MainActivity::class.java, intentProvider)
+
+        inline fun <reified A : Activity> forActivity(
+            noinline intentProvider: (() -> Intent)? = null,
+        ): AppHybridTestRule<A> = AppHybridTestRule(A::class.java, intentProvider)
     }
 }

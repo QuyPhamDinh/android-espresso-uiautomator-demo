@@ -1,46 +1,47 @@
 package com.wdiodemoapp.framework.screens
 
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isClickable
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isFocusable
 import androidx.test.espresso.matcher.ViewMatchers.isSelected
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import com.wdiodemoapp.framework.core.CustomMatchers.hasMinimumTouchTargetDp
 import com.wdiodemoapp.framework.core.EspressoActions.onDesc
 import com.wdiodemoapp.framework.core.EspressoActions.tapDesc
 import com.wdiodemoapp.testshared.AccessibilityIds
+import com.wdiodemoapp.testshared.NavigationScreen
 import com.wdiodemoapp.testshared.SystemActions
 import org.hamcrest.Matchers.allOf
 
 /**
- * Robot for bottom tab navigation and wdio:// deep-link routing.
+ * Instantiable Espresso implementation of [NavigationScreen] for bottom tab and deep-link routing.
  */
-object NavigationRobot {
+open class EspressoNavigationRobot : NavigationScreen {
 
-    fun openHome() = openTab(AccessibilityIds.Tabs.HOME)
-    fun openWebView() = openTab(AccessibilityIds.Tabs.WEBVIEW)
-    fun openLogin() = openTab(AccessibilityIds.Tabs.LOGIN)
-    fun openForms() = openTab(AccessibilityIds.Tabs.FORMS)
-    fun openSwipe() = openTab(AccessibilityIds.Tabs.SWIPE)
-    fun openDrag() = openTab(AccessibilityIds.Tabs.DRAG)
+    override fun openHome(): EspressoNavigationRobot = openTab(AccessibilityIds.Tabs.HOME)
+    override fun openWebView(): EspressoNavigationRobot = openTab(AccessibilityIds.Tabs.WEBVIEW)
+    override fun openLogin(): EspressoNavigationRobot = openTab(AccessibilityIds.Tabs.LOGIN)
+    override fun openForms(): EspressoNavigationRobot = openTab(AccessibilityIds.Tabs.FORMS)
+    override fun openSwipe(): EspressoNavigationRobot = openTab(AccessibilityIds.Tabs.SWIPE)
+    override fun openDrag(): EspressoNavigationRobot = openTab(AccessibilityIds.Tabs.DRAG)
 
-    fun openTab(tabContentDesc: String) = apply {
+    override fun openTab(tabContentDesc: String): EspressoNavigationRobot = apply {
         tapDesc(tabContentDesc)
     }
 
-    fun openDeepLink(system: SystemActions, route: String) = apply {
+    fun openDeepLink(system: SystemActions, route: String): EspressoNavigationRobot = apply {
         system.openDeepLink(route)
     }
 
-    fun assertTabBarReady() = apply {
+    override fun assertTabBarReady(): EspressoNavigationRobot = apply {
         onDesc(AccessibilityIds.Tabs.HOME).check(matches(isDisplayed()))
     }
 
-    fun assertTabSelected(tabContentDesc: String) = apply {
+    override fun assertTabSelected(tabContentDesc: String): EspressoNavigationRobot = apply {
         onDesc(tabContentDesc).check(matches(isSelected()))
     }
 
-    fun assertTabUsableTouchTarget(tabContentDesc: String) = apply {
+    fun assertTabUsableTouchTarget(tabContentDesc: String): EspressoNavigationRobot = apply {
         onDesc(tabContentDesc).check(
             matches(
                 allOf(
@@ -53,3 +54,8 @@ object NavigationRobot {
         )
     }
 }
+
+/**
+ * Default singleton entry point delegating to [EspressoNavigationRobot].
+ */
+object NavigationRobot : EspressoNavigationRobot()

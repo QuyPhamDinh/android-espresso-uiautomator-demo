@@ -25,6 +25,8 @@ import com.wdiodemoapp.framework.core.EspressoActions.replaceTextAndCloseKeyboar
 import com.wdiodemoapp.framework.core.EspressoActions.scrollIfNeededAndTap
 import com.wdiodemoapp.framework.core.EspressoActions.tapDesc
 import com.wdiodemoapp.testshared.AccessibilityIds
+import com.wdiodemoapp.testshared.FormsScreen
+import com.wdiodemoapp.testshared.NavigationScreen
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
@@ -32,37 +34,40 @@ import org.hamcrest.Matchers.instanceOf
 import org.hamcrest.Matchers.`is`
 
 /**
- * Robot for Forms screen controls (input, mirror text, switch, dropdown picker, buttons).
+ * Instantiable Espresso implementation of [FormsScreen] for Forms screen controls
+ * (input, mirror text, switch, dropdown picker, buttons).
  */
-object FormsRobot {
+open class EspressoFormsRobot(
+    private val navigation: NavigationScreen = NavigationRobot,
+) : FormsScreen {
 
-    fun open() = apply {
-        NavigationRobot.openForms()
+    override fun open(): EspressoFormsRobot = apply {
+        navigation.openForms()
         assertVisible()
     }
 
-    fun assertVisible() = apply {
+    override fun assertVisible(): EspressoFormsRobot = apply {
         assertDisplayed(AccessibilityIds.Screens.FORMS)
     }
 
-    fun enterText(text: String) = apply {
+    override fun enterText(text: String): EspressoFormsRobot = apply {
         replaceTextAndCloseKeyboard(AccessibilityIds.Forms.TEXT_INPUT, text)
     }
 
-    fun assertInputText(expected: String) = apply {
+    override fun assertInputText(expected: String): EspressoFormsRobot = apply {
         onDesc(AccessibilityIds.Forms.TEXT_INPUT).check(matches(withText(expected)))
     }
 
-    fun assertInputEmpty() = apply {
+    override fun assertInputEmpty(): EspressoFormsRobot = apply {
         onDesc(AccessibilityIds.Forms.TEXT_INPUT).check(matches(withText("")))
     }
 
-    fun assertMirrorContains(expected: String) = apply {
+    fun assertMirrorContains(expected: String): EspressoFormsRobot = apply {
         onDesc(AccessibilityIds.Forms.INPUT_RESULT)
             .check(matches(withText(containsString(expected))))
     }
 
-    fun setSwitch(on: Boolean) = apply {
+    override fun setSwitch(on: Boolean): EspressoFormsRobot = apply {
         if (isSwitchChecked() != on) {
             tapDesc(AccessibilityIds.Forms.SWITCH)
         }
@@ -83,19 +88,19 @@ object FormsRobot {
         return checked
     }
 
-    fun assertSwitchChecked(expected: Boolean) = apply {
+    override fun assertSwitchChecked(expected: Boolean): EspressoFormsRobot = apply {
         onDesc(AccessibilityIds.Forms.SWITCH)
             .check(matches(if (expected) isChecked() else isNotChecked()))
     }
 
-    fun selectDropdownOption(optionText: String) = apply {
+    fun selectDropdownOption(optionText: String): EspressoFormsRobot = apply {
         tapDesc(AccessibilityIds.Forms.DROPDOWN)
         onData(allOf(`is`(instanceOf(String::class.java)), `is`(optionText)))
             .inRoot(isDialog())
             .perform(click())
     }
 
-    fun assertDropdownContains(expected: String) = apply {
+    fun assertDropdownContains(expected: String): EspressoFormsRobot = apply {
         onView(
             allOf(
                 isAssignableFrom(EditText::class.java),
@@ -104,21 +109,26 @@ object FormsRobot {
         ).check(matches(withText(containsString(expected))))
     }
 
-    fun tapActiveButton() = apply {
+    fun tapActiveButton(): EspressoFormsRobot = apply {
         scrollIfNeededAndTap(withContentDescription(AccessibilityIds.Forms.ACTIVE_BUTTON))
     }
 
-    fun assertInactiveButtonDisabled() = apply {
+    fun assertInactiveButtonDisabled(): EspressoFormsRobot = apply {
         ensureVisible(withContentDescription(AccessibilityIds.Forms.INACTIVE_BUTTON))
             .check(matches(allOf(isDisplayed(), isNotEnabled())))
     }
 
-    fun tapInactiveButton() = apply {
+    fun tapInactiveButton(): EspressoFormsRobot = apply {
         scrollIfNeededAndTap(withContentDescription(AccessibilityIds.Forms.INACTIVE_BUTTON))
     }
 
-    fun assertStateCleared() = apply {
+    override fun assertStateCleared(): EspressoFormsRobot = apply {
         assertInputEmpty()
         assertSwitchChecked(false)
     }
 }
+
+/**
+ * Default singleton entry point delegating to [EspressoFormsRobot].
+ */
+object FormsRobot : EspressoFormsRobot()
