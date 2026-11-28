@@ -27,6 +27,14 @@ on:
           - '[34]'
           - '[30]'
           - '[30,34,36]'
+      shards:
+        description: Number of parallel test shards per API level
+        type: choice
+        default: '2'
+        options:
+          - '1'
+          - '2'
+          - '4'
 
 permissions:
   contents: read
@@ -36,15 +44,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  android-tests:
-    name: Espresso & UIAutomator (API ${{ matrix.api-level }})
+  build-apks:
+    name: Build App & Instrumentation APKs
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        api-level: ${{ fromJSON((github.event_name == 'push' && github.ref == 'refs/heads/main' && '[30,34,36]') || (github.event_name == 'workflow_dispatch' && inputs.api-levels) || '[36]') }}
-
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -64,6 +67,51 @@ jobs:
 
       - name: Assemble app and instrumentation APKs
         run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :lifecycle-androidTest:assembleDebugAndroidTest
+
+      - name: Upload prebuilt APKs and Gradle outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt-apks
+          retention-days: 1
+          path: |
+            app/build/outputs/apk/
+            app/build/intermediates/
+            lifecycle-androidTest/build/outputs/apk/
+            lifecycle-androidTest/build/intermediates/
+            test-shared/build/
+
+  android-tests:
+    name: Espresso & UIAutomator (API ${{ matrix.api-level }}, Shard ${{ matrix.shard }})
+    needs: build-apks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: ${{ fromJSON((github.event_name == 'push' && github.ref == 'refs/heads/main' && '[30,34,36]') || (github.event_name == 'workflow_dispatch' && inputs.api-levels) || '[36]') }}
+        shard: ${{ fromJSON(github.event_name == 'workflow_dispatch' && (inputs.shards == '1' && '[0]' || inputs.shards == '4' && '[0,1,2,3]' || '[0,1]') || '[0,1]') }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle caching
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5
+
+      - name: Install Android SDK compile components
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'platforms;android-37.0' 'build-tools;36.0.0'
+
+      - name: Download prebuilt APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: prebuilt-apks
 
       - name: Enable KVM for the emulator
         run: |
@@ -100,7 +148,7 @@ jobs:
             echo Clean AVD snapshot ready
 
       - name: Cache the clean emulator snapshot
-        if: matrix.api-level != 30 && github.ref == 'refs/heads/main' && steps.avd-cache.outputs.cache-hit != 'true'
+        if: matrix.api-level != 30 && github.ref == 'refs/heads/main' && matrix.shard == 0 && steps.avd-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
           path: |
@@ -112,6 +160,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         env:
           TEST_SUITE: ${{ inputs.suite || 'test' }}
+          NUM_SHARDS: ${{ github.event_name == 'workflow_dispatch' && inputs.shards || '2' }}
+          SHARD_INDEX: ${{ matrix.shard }}
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
@@ -124,21 +174,25 @@ jobs:
             -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
+            ANDROID_SERIAL="${ANDROID_SERIAL:-$(adb devices | awk '$2 == "device" {print $1; exit}')}"
+            test -n "$ANDROID_SERIAL"
             adb shell pm disable-user --user 0 com.android.vending >/dev/null 2>&1 || true
             adb shell wm size
             adb shell wm density
-            make "$TEST_SUITE"
+            make "$TEST_SUITE" ANDROID_SERIAL="$ANDROID_SERIAL" PREBUILT_APKS=true NUM_SHARDS="$NUM_SHARDS" SHARD_INDEX="$SHARD_INDEX"
 
       - name: Publish test summary
         if: always()
         env:
           API_LEVEL: ${{ matrix.api-level }}
+          SHARD_INDEX: ${{ matrix.shard }}
+          NUM_SHARDS: ${{ github.event_name == 'workflow_dispatch' && inputs.shards || '2' }}
         run: python3 scripts/write-github-summary.py build/device-test-results
 
       - name: Upload test reports and failure artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-espresso-results-api-${{ matrix.api-level }}
+          name: android-espresso-results-api-${{ matrix.api-level }}-shard-${{ matrix.shard }}
           path: build/device-test-results/
           if-no-files-found: warn
