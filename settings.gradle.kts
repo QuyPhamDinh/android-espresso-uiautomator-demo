@@ -20,6 +20,15 @@ dependencyResolutionManagement {
     }
 }
 
+buildCache {
+    local {
+        val cacheDir = System.getenv("GRADLE_LOCAL_BUILD_CACHE")
+        if (!cacheDir.isNullOrBlank()) {
+            directory = file(cacheDir)
+        }
+    }
+}
+
 rootProject.name = "WdioNativeDemoApp"
 include(":app")
 include(":test-shared")

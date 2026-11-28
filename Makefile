@@ -20,33 +20,13 @@ RUN_LIFECYCLE := yes
 endif
 
 ifeq ($(PREBUILT_APKS),true)
-APP_PREBUILT_FLAGS := \
-	-x :app:packageDebug -x :app:packageDebugAndroidTest \
-	-x :app:createDebugApkListingFileRedirect -x :app:createDebugAndroidTestApkListingFileRedirect \
-	-x :app:compileDebugKotlin -x :app:compileDebugAndroidTestKotlin \
-	-x :app:compileDebugJavaWithJavac -x :app:compileDebugAndroidTestJavaWithJavac \
-	-x :app:processDebugResources -x :app:processDebugAndroidTestResources \
-	-x :app:processDebugManifest -x :app:processDebugAndroidTestManifest \
-	-x :test-shared:compileDebugKotlin
-LIFECYCLE_PREBUILT_FLAGS := \
-	-x :app:packageDebug -x :app:createDebugApkListingFileRedirect \
-	-x :app:compileDebugKotlin -x :app:compileDebugJavaWithJavac \
-	-x :app:processDebugResources -x :app:processDebugManifest \
-	-x :lifecycle-androidTest:packageDebug -x :lifecycle-androidTest:packageDebugAndroidTest \
-	-x :lifecycle-androidTest:createDebugApkListingFileRedirect -x :lifecycle-androidTest:createDebugAndroidTestApkListingFileRedirect \
-	-x :lifecycle-androidTest:compileDebugKotlin -x :lifecycle-androidTest:compileDebugAndroidTestKotlin \
-	-x :lifecycle-androidTest:compileDebugJavaWithJavac -x :lifecycle-androidTest:compileDebugAndroidTestJavaWithJavac \
-	-x :lifecycle-androidTest:processDebugResources -x :lifecycle-androidTest:processDebugAndroidTestResources \
-	-x :lifecycle-androidTest:processDebugManifest -x :lifecycle-androidTest:processDebugAndroidTestManifest \
-	-x :lifecycle-androidTest:syncLifecycleTestSources \
-	-x :test-shared:compileDebugKotlin
+CACHE_FLAGS := --build-cache
 else
-APP_PREBUILT_FLAGS :=
-LIFECYCLE_PREBUILT_FLAGS :=
+CACHE_FLAGS :=
 endif
 
-APP_RUN := $(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) $(SHARD_FLAGS) $(APP_PREBUILT_FLAGS)
-LIFECYCLE_RUN := $(RUN_TESTS) $(GRADLE) :lifecycle-androidTest:connectedDebugAndroidTest $(GRADLE_FLAGS) $(LIFECYCLE_PREBUILT_FLAGS)
+APP_RUN := $(RUN_TESTS) $(GRADLE) :app:connectedDebugAndroidTest $(GRADLE_FLAGS) $(SHARD_FLAGS) $(CACHE_FLAGS)
+LIFECYCLE_RUN := $(RUN_TESTS) $(GRADLE) :lifecycle-androidTest:connectedDebugAndroidTest $(GRADLE_FLAGS) $(CACHE_FLAGS)
 
 test:
 	@app_status=0; lifecycle_status=0; \

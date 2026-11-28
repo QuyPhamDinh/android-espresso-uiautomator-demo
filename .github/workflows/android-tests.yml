@@ -66,19 +66,19 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install 'platforms;android-37.0' 'build-tools;36.0.0'
 
       - name: Assemble app and instrumentation APKs
-        run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :lifecycle-androidTest:assembleDebugAndroidTest
+        env:
+          GRADLE_LOCAL_BUILD_CACHE: ${{ github.workspace }}/build/gradle-build-cache
+        run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest :lifecycle-androidTest:assembleDebug :lifecycle-androidTest:assembleDebugAndroidTest --build-cache
 
-      - name: Upload prebuilt APKs and Gradle outputs
+      - name: Upload prebuilt APKs and Gradle build cache
         uses: actions/upload-artifact@v4
         with:
           name: prebuilt-apks
           retention-days: 1
           path: |
+            build/gradle-build-cache/
             app/build/outputs/apk/
-            app/build/intermediates/
             lifecycle-androidTest/build/outputs/apk/
-            lifecycle-androidTest/build/intermediates/
-            test-shared/build/
 
   android-tests:
     name: Espresso & UIAutomator (API ${{ matrix.api-level }}, Shard ${{ matrix.shard }})
@@ -162,6 +162,7 @@ jobs:
           TEST_SUITE: ${{ inputs.suite || 'test' }}
           NUM_SHARDS: ${{ github.event_name == 'workflow_dispatch' && inputs.shards || '2' }}
           SHARD_INDEX: ${{ matrix.shard }}
+          GRADLE_LOCAL_BUILD_CACHE: ${{ github.workspace }}/build/gradle-build-cache
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
