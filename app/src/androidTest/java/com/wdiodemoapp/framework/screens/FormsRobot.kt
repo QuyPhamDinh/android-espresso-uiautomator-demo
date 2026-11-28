@@ -1,24 +1,31 @@
 package com.wdiodemoapp.framework.screens
 
+import android.view.View
+import android.widget.Checkable
 import android.widget.EditText
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isChecked
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
 import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.wdiodemoapp.framework.core.EspressoActions.assertDisplayed
+import com.wdiodemoapp.framework.core.EspressoActions.ensureVisible
 import com.wdiodemoapp.framework.core.EspressoActions.onDesc
 import com.wdiodemoapp.framework.core.EspressoActions.replaceTextAndCloseKeyboard
 import com.wdiodemoapp.framework.core.EspressoActions.scrollIfNeededAndTap
 import com.wdiodemoapp.framework.core.EspressoActions.tapDesc
 import com.wdiodemoapp.testshared.AccessibilityIds
+import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.instanceOf
@@ -56,12 +63,24 @@ object FormsRobot {
     }
 
     fun setSwitch(on: Boolean) = apply {
-        try {
-            assertSwitchChecked(on)
-        } catch (_: AssertionError) {
+        if (isSwitchChecked() != on) {
             tapDesc(AccessibilityIds.Forms.SWITCH)
-            assertSwitchChecked(on)
         }
+        assertSwitchChecked(on)
+    }
+
+    private fun isSwitchChecked(): Boolean {
+        var checked = false
+        onDesc(AccessibilityIds.Forms.SWITCH).perform(object : ViewAction {
+            override fun getConstraints(): Matcher<View> =
+                allOf(isAssignableFrom(View::class.java), instanceOf(Checkable::class.java))
+            override fun getDescription(): String = "read Checkable.isChecked state"
+
+            override fun perform(uiController: UiController, view: View) {
+                checked = (view as Checkable).isChecked
+            }
+        })
+        return checked
     }
 
     fun assertSwitchChecked(expected: Boolean) = apply {
@@ -90,8 +109,12 @@ object FormsRobot {
     }
 
     fun assertInactiveButtonDisabled() = apply {
+        ensureVisible(withContentDescription(AccessibilityIds.Forms.INACTIVE_BUTTON))
+            .check(matches(allOf(isDisplayed(), isNotEnabled())))
+    }
+
+    fun tapInactiveButton() = apply {
         scrollIfNeededAndTap(withContentDescription(AccessibilityIds.Forms.INACTIVE_BUTTON))
-        onDesc(AccessibilityIds.Forms.INACTIVE_BUTTON).check(matches(isNotEnabled()))
     }
 
     fun assertStateCleared() = apply {
