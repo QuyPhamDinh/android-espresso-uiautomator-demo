@@ -56,8 +56,10 @@ class WebViewFragment : Fragment() {
                 }
             }
 
+            val targetUrl = arguments?.getString(ARG_INITIAL_URL)?.takeIf { it.isNotBlank() }
+                ?: WEBDRIVER_IO_URL
             if (url == null) {
-                loadUrl(WEBDRIVER_IO_URL)
+                loadUrl(targetUrl)
             }
         }
     }
@@ -71,5 +73,15 @@ class WebViewFragment : Fragment() {
 
     companion object {
         const val WEBDRIVER_IO_URL = "https://webdriver.io/"
+        private const val ARG_INITIAL_URL = "initial_url"
+
+        fun newInstance(initialUrl: String? = null): WebViewFragment =
+            WebViewFragment().apply {
+                if (!initialUrl.isNullOrBlank()) {
+                    arguments = Bundle().apply {
+                        putString(ARG_INITIAL_URL, initialUrl)
+                    }
+                }
+            }
     }
 }

@@ -19,8 +19,12 @@ import org.junit.runners.model.Statement
  * and automatic screenshot/hierarchy/logcat capture on test failure.
  */
 class AppHybridTestRule(
-    private val launchIntent: Intent? = null,
+    private val intentProvider: (() -> Intent)?,
 ) : TestRule {
+
+    constructor(launchIntent: Intent? = null) : this(
+        intentProvider = launchIntent?.let { intent -> { intent } },
+    )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device: UiDevice get() = UiDevice.getInstance(instrumentation)
@@ -31,8 +35,9 @@ class AppHybridTestRule(
 
     private val scenarioResource = object : ExternalResource() {
         override fun before() {
-            scenario = if (launchIntent != null) {
-                ActivityScenario.launch(launchIntent)
+            val intent = intentProvider?.invoke()
+            scenario = if (intent != null) {
+                ActivityScenario.launch(intent)
             } else {
                 ActivityScenario.launch(MainActivity::class.java)
             }
