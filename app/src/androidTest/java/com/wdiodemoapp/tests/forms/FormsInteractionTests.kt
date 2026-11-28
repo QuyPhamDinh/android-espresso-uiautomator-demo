@@ -7,6 +7,7 @@ import com.wdiodemoapp.framework.screens.FormsRobot
 import com.wdiodemoapp.testshared.AccessibilityIds
 import com.wdiodemoapp.testshared.RegressionTest
 import com.wdiodemoapp.testshared.SmokeTest
+import com.wdiodemoapp.testshared.UiText
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,11 +52,11 @@ class FormsInteractionTests {
     @Test
     fun activeButtonOpensAlertAndClosesWithAllThreeButtons() {
         FormsRobot.open()
-        listOf("Ask me later", "Cancel", "OK").forEach { buttonLabel ->
+        UiText.Forms.ACTIVE_DIALOG_BUTTONS.forEach { buttonLabel ->
             FormsRobot.tapActiveButton()
-            AlertRobot.assertMessageContains("This button is active")
+            AlertRobot.assertMessageContains(UiText.Forms.ACTIVE_DIALOG_MESSAGE)
                 .tapButton(buttonLabel)
-                .assertNoDialogWithText("This button is")
+                .assertNoDialogWithText(UiText.Forms.ACTIVE_DIALOG_TITLE_PREFIX)
         }
     }
 
@@ -65,6 +66,6 @@ class FormsInteractionTests {
         FormsRobot.open()
             .assertInactiveButtonDisabled()
             .tapInactiveButton()
-        AlertRobot.assertNoDialogWithText("This button is")
+        AlertRobot.assertNoDialogWithText(UiText.Forms.ACTIVE_DIALOG_TITLE_PREFIX)
     }
 }

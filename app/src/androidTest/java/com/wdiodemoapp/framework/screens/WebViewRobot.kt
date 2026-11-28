@@ -1,6 +1,5 @@
 package com.wdiodemoapp.framework.screens
 
-import android.os.SystemClock
 import android.webkit.WebView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -14,6 +13,7 @@ import androidx.test.espresso.web.webdriver.DriverAtoms.getText
 import androidx.test.espresso.web.webdriver.DriverAtoms.webClick
 import androidx.test.espresso.web.webdriver.Locator
 import com.wdiodemoapp.testshared.TestConfig
+import com.wdiodemoapp.testshared.Waiters
 import org.hamcrest.Matchers.containsString
 
 /**
@@ -82,40 +82,26 @@ object WebViewRobot {
         expected: String,
         timeoutMs: Long = TestConfig.uiTimeoutMs * 2,
     ) = apply {
-        val deadline = SystemClock.elapsedRealtime() + timeoutMs
-        var lastError: Throwable? = null
-        while (SystemClock.elapsedRealtime() < deadline) {
-            try {
-                onWebView()
-                    .withElement(findElement(Locator.CSS_SELECTOR, cssSelector))
-                    .check(webMatches(getText(), containsString(expected)))
-                return@apply
-            } catch (error: Throwable) {
-                lastError = error
-                SystemClock.sleep(200)
-            }
+        Waiters.waitUntilNoThrow(
+            timeoutMs = timeoutMs,
+            failureMessage = {
+                "Timed out after ${timeoutMs}ms waiting for '$cssSelector' to contain '$expected'"
+            },
+        ) {
+            onWebView()
+                .withElement(findElement(Locator.CSS_SELECTOR, cssSelector))
+                .check(webMatches(getText(), containsString(expected)))
         }
-        throw AssertionError(
-            "Timed out after ${timeoutMs}ms waiting for '$cssSelector' to contain '$expected'",
-            lastError,
-        )
     }
 
     fun waitForCssElement(cssSelector: String, timeoutMs: Long = TestConfig.uiTimeoutMs) = apply {
-        val deadline = SystemClock.elapsedRealtime() + timeoutMs
-        var lastError: Throwable? = null
-        while (SystemClock.elapsedRealtime() < deadline) {
-            try {
-                onWebView().withElement(findElement(Locator.CSS_SELECTOR, cssSelector))
-                return@apply
-            } catch (error: Throwable) {
-                lastError = error
-                SystemClock.sleep(200)
-            }
+        Waiters.waitUntilNoThrow(
+            timeoutMs = timeoutMs,
+            failureMessage = {
+                "Timed out after ${timeoutMs}ms waiting for CSS element '$cssSelector'"
+            },
+        ) {
+            onWebView().withElement(findElement(Locator.CSS_SELECTOR, cssSelector))
         }
-        throw AssertionError(
-            "Timed out after ${timeoutMs}ms waiting for CSS element '$cssSelector'",
-            lastError,
-        )
     }
 }

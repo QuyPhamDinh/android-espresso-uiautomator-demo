@@ -7,6 +7,7 @@ import com.wdiodemoapp.framework.screens.HomeRobot
 import com.wdiodemoapp.framework.screens.NavigationRobot
 import com.wdiodemoapp.testshared.AccessibilityIds
 import com.wdiodemoapp.testshared.AccessibilityTest
+import com.wdiodemoapp.testshared.UiText
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +21,7 @@ class HomeAccessibilityTests {
 
     @Test
     fun homeExposesReadableContent() {
-        HomeRobot.assertReadableText("WEBDRIVER", "Demo app for")
+        HomeRobot.assertReadableText(UiText.Home.TITLE_KEYWORD, UiText.Home.SUBTITLE_PREFIX)
     }
 
     @Test

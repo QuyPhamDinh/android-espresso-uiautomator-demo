@@ -49,12 +49,6 @@ android {
     }
 }
 
-tasks.matching { it.name.contains("AndroidTestKotlin") }.configureEach {
-    (this as? org.gradle.api.tasks.util.PatternFilterable)
-        ?.excludes
-        ?.add("**/tests/lifecycle/ProcessLifecycleTests.kt")
-}
-
 dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.appcompat:appcompat:1.7.0")

@@ -11,6 +11,7 @@ import com.wdiodemoapp.testshared.FailureArtifactsRule
 import com.wdiodemoapp.testshared.LifecycleTest
 import com.wdiodemoapp.testshared.SystemActions
 import com.wdiodemoapp.testshared.TestConfig
+import com.wdiodemoapp.testshared.UiText
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -19,10 +20,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * External black-box UIAutomator lifecycle suite compiled and executed by `:lifecycle-androidTest`.
- * Stored alongside other lifecycle tests in `:app/src/androidTest` for unified test organization,
- * while running under `com.wdiodemoapp.lifecycle.host` so `am kill` and `am force-stop`
- * on `com.wdiodemoapp` never terminate the test runner itself.
+ * External black-box UIAutomator lifecycle suite executed under `:lifecycle-androidTest`
+ * (`com.wdiodemoapp.lifecycle.host`) so `am kill` and `am force-stop` on `com.wdiodemoapp`
+ * never terminate the test runner itself.
  */
 @LifecycleTest
 @RunWith(AndroidJUnit4::class)
@@ -93,7 +93,7 @@ class ProcessLifecycleTests {
         val inputText = input.text.orEmpty()
         assertTrue(
             "Expected cleared/hint text after restart, found '$inputText'",
-            inputText.isEmpty() || inputText == "Type something",
+            inputText.isEmpty() || inputText == UiText.Forms.INPUT_HINT,
         )
         val switchToggle = waitFor(AccessibilityIds.Forms.SWITCH)
         assertFalse("Expected switch to be off after restart", switchToggle.isChecked)

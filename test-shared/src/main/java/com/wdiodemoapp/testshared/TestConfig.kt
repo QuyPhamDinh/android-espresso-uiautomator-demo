@@ -11,8 +11,6 @@ object TestConfig {
 
     val packageName: String get() = arg("targetPackage", "com.wdiodemoapp")
     val deepLinkScheme: String get() = arg("deepLinkScheme", "wdio://")
-    val webviewUrl: String get() = arg("webviewUrl", "https://webdriver.io/")
-    val webviewTitleKeyword: String get() = arg("webviewTitleKeyword", "WebdriverIO")
 
     val uiTimeoutMs: Long = 10_000L
     val dialogTimeoutMs: Long = 11_000L
